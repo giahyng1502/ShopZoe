@@ -7,8 +7,9 @@ import PasswordInput from '../Component/CustomInputPass';
 import CustomButton from '../Component/CustomButton';
 import Style from '../Style/Style';
 import Colors from '../Style/Colors';
-import Snackbar from 'react-native-snackbar';
+import {Snackbar} from 'react-native-paper';
 import FetchApi from '../API/FetchApi';
+import AppLoading from '../Component/AppLoading';
 
 const RegisterScreen = ({navigation}) => {
   const [error, setError] = useState('');
@@ -19,14 +20,25 @@ const RegisterScreen = ({navigation}) => {
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [textSnapper, setTextSnapper] = useState('');
+  const [loading, setLoading] = useState(false);
   const handleSubmit = async () => {
     // Kiểm tra lỗi đầu vào trước khi tiếp tục
     if (errorName || error || errorPass || errorRePass) {
-      Snackbar.show({
-        text: 'Vui lòng điền đầy đủ thông tin',
-        duration: Snackbar.LENGTH_SHORT,
-      });
+      setTextSnapper('Vui lòng điền đầy đủ thông tin');
+      setVisible(true);
       return; // Thoát hàm nếu có lỗi
+    }
+    if (
+      account.length === 0 ||
+      password.length === 0 ||
+      rePassword.length === 0 ||
+      fullName.length === 0
+    ) {
+      setTextSnapper('Vui lòng điền đầy đủ thông tin');
+      setVisible(true);
+      return;
     }
 
     // Tạo đối tượng người dùng để đăng ký
@@ -37,6 +49,7 @@ const RegisterScreen = ({navigation}) => {
     };
 
     try {
+      setLoading(true);
       // Gọi hàm FetchApi để gửi dữ liệu đăng ký
       const res = await FetchApi('user/register', 'POST', obj);
 
@@ -44,28 +57,20 @@ const RegisterScreen = ({navigation}) => {
       if (!res.ok) {
         // Xử lý phản hồi lỗi
         if (res.status === 409) {
-          Snackbar.show({
-            backgroundColor: Colors.blueColor,
-            text: 'Tài khoản đã tồn tại trên hệ thống',
-            duration: Snackbar.LENGTH_SHORT,
-          });
+          setTextSnapper('Tài khoản đã tồn tại trên hệ thống');
+          setVisible(true);
         }
       } else {
         // Đăng ký thành công
-        Snackbar.show({
-          text: 'Đăng ký thành công',
-          duration: Snackbar.LENGTH_SHORT,
-        });
-        navigation.navigate('Login');
+        navigation.navigate('Login', {notification: 'Đăng ký thành công'});
       }
     } catch (error) {
       // Xử lý bất kỳ lỗi không mong muốn nào (sự cố mạng, v.v.)
-      Snackbar.show({
-        text: 'Đã xảy ra lỗi, vui lòng thử lại',
-        duration: Snackbar.LENGTH_SHORT,
-      });
+      setTextSnapper('Đã xảy ra lỗi, vui lòng thử lại');
+      setVisible(true);
       console.error('Lỗi trong quá trình đăng ký:', error);
     }
+    setLoading(false);
   };
 
   const handleAccount = input => {
@@ -130,10 +135,10 @@ const RegisterScreen = ({navigation}) => {
   };
 
   const handlePassword = input => {
-    handleRePassword(rePassword);
+    setPassword(input);
     // Kiểm tra độ dài mật khẩu
-    if (input.length <= 6) {
-      setErrorPass('Mật khẩu phải có hơn 6 ký tự');
+    if (input.length < 6) {
+      setErrorPass('Mật khẩu phải có ít nhất 6 ký tự');
       return;
     }
 
@@ -142,18 +147,35 @@ const RegisterScreen = ({navigation}) => {
       setErrorPass('Mật khẩu không được chứa khoảng trắng');
       return;
     }
+    if (!comfirmPassword(input, rePassword)) {
+      setErrorRePass('Mật khẩu và mật khẩu nhập lại phải giống nhau');
+    } else {
+      setErrorRePass('');
+    }
 
     // Nếu không có lỗi, reset lỗi
     setErrorPass('');
   };
 
+  const comfirmPassword = (pass, rePass) => {
+    let check = true;
+    // console.log(pass);
+    // console.log(rePass);
+    if (pass !== rePass) {
+      check = false;
+    }
+    return check;
+  };
   const handleRePassword = input => {
+    setRePassword(input);
+    // console.log(password);
+    // console.log(rePassword);
     // Kiểm tra xem mật khẩu xác nhận có khớp không
-    if (input.length <= 6) {
-      setErrorRePass('Mật khẩu nhập phải có hơn 6 ký tự');
+    if (input.length < 6) {
+      setErrorRePass('Mật khẩu nhập phải ít nhất 6 ký tự');
       return;
     }
-    if (input !== password) {
+    if (!comfirmPassword(password, input)) {
       setErrorRePass('Mật khẩu và mật khẩu nhập lại phải giống nhau');
       return;
     }
@@ -162,119 +184,134 @@ const RegisterScreen = ({navigation}) => {
   };
 
   return (
-    <Container>
-      <TextTitle>Đăng Ký Ngay</TextTitle>
-      <TextView>Tạo tài khoản</TextView>
-      <Spacer height={20} />
+    <>
+      <Container>
+        <Snackbar
+          visible={visible}
+          onDismiss={() => setVisible(false)}
+          duration={2000}
+          style={Style.snackbar}
+          action={{
+            label: 'X',
+            onPress: () => {
+              setVisible(false);
+            },
+            textColor: Colors.white,
+          }}>
+          <TextView size={14} color={Colors.white}>
+            {textSnapper}
+          </TextView>
+        </Snackbar>
+        <TextTitle>Đăng Ký Ngay</TextTitle>
+        <TextView>Tạo tài khoản</TextView>
+        <Spacer height={20} />
 
-      {/* Họ tên */}
-      <EditText
-        placeholder="Nhập họ tên của bạn"
-        label="Họ tên"
-        value={fullName}
-        onChangeText={it => {
-          setFullName(it);
-          handlerErrorName(it);
-        }}
-        error={!!errorName}
-      />
+        {/* Họ tên */}
+        <EditText
+          placeholder="Nhập họ tên của bạn"
+          label="Họ tên"
+          value={fullName}
+          onChangeText={it => {
+            setFullName(it);
+            handlerErrorName(it);
+          }}
+          error={!!errorName}
+        />
 
-      {/* Tài khoản */}
-      <EditText
-        placeholder="Nhập số điện thoại của bạn"
-        label="Số điện thoại"
-        value={account}
-        keyboardType="numeric"
-        onChangeText={it => {
-          setAccount(it);
-          handleAccount(it);
-        }}
-        error={error}
-      />
+        {/* Tài khoản */}
+        <EditText
+          placeholder="Nhập số điện thoại của bạn"
+          label="Số điện thoại"
+          value={account}
+          keyboardType="numeric"
+          onChangeText={it => {
+            setAccount(it);
+            handleAccount(it);
+          }}
+          error={error}
+        />
 
-      {/* Mật khẩu */}
-      <PasswordInput
-        label="Mật khẩu"
-        secureTextEntry={true}
-        placeholder="Vui lòng nhập mật khẩu"
-        value={password}
-        onChangeText={it => {
-          setPassword(it);
-          handlePassword(it);
-        }}
-        error={!!errorPass}
-      />
+        {/* Mật khẩu */}
+        <PasswordInput
+          label="Mật khẩu"
+          secureTextEntry={true}
+          placeholder="Vui lòng nhập mật khẩu"
+          value={password}
+          onChangeText={handlePassword}
+          error={!!errorPass}
+        />
 
-      {/* Nhập lại mật khẩu */}
-      <PasswordInput
-        label="Nhập lại mật khẩu"
-        secureTextEntry={true}
-        placeholder="Vui lòng nhập lại mật khẩu"
-        value={rePassword}
-        onChangeText={it => {
-          setRePassword(it);
-          handleRePassword(it);
-        }}
-        error={!!errorRePass}
-      />
-      {errorName && (
-        <TextView color={Colors.error} size={12}>
-          * {errorName}
-        </TextView>
-      )}
-      {error && (
-        <TextView color={Colors.error} size={12}>
-          * {error}
-        </TextView>
-      )}
-      {errorPass && (
-        <TextView color={Colors.error} size={12}>
-          * {errorPass}
-        </TextView>
-      )}
-      {errorRePass && (
-        <TextView color={Colors.error} size={12}>
-          * {errorRePass}
-        </TextView>
-      )}
-      <Spacer height={15} />
-      <CustomButton
-        onPress={() => {
-          handleSubmit();
-        }}>
-        <Text style={{fontSize: 20, fontWeight: '700', color: Colors.white}}>
-          Đăng Ký
-        </Text>
-      </CustomButton>
-      <Spacer height={15} />
+        {/* Nhập lại mật khẩu */}
+        <PasswordInput
+          label="Nhập lại mật khẩu"
+          secureTextEntry={true}
+          placeholder="Vui lòng nhập lại mật khẩu"
+          value={rePassword}
+          onChangeText={handleRePassword}
+          error={!!errorRePass}
+        />
+        {errorName && (
+          <TextView color={Colors.error} size={12}>
+            * {errorName}
+          </TextView>
+        )}
+        {error && (
+          <TextView color={Colors.error} size={12}>
+            * {error}
+          </TextView>
+        )}
+        {errorPass && (
+          <TextView color={Colors.error} size={12}>
+            * {errorPass}
+          </TextView>
+        )}
+        {errorRePass && (
+          <TextView color={Colors.error} size={12}>
+            * {errorRePass}
+          </TextView>
+        )}
+        <Spacer height={15} />
+        <CustomButton
+          onPress={() => {
+            handleSubmit();
+          }}>
+          <Text style={{fontSize: 20, fontWeight: '700', color: Colors.white}}>
+            Đăng Ký
+          </Text>
+        </CustomButton>
+        <Spacer height={15} />
 
-      <Row style={Style.row}>
-        <View style={Style.separator}></View>
-        <Text style={{marginHorizontal: 10}}>Hoặc</Text>
-        <View style={Style.separator}></View>
-      </Row>
-      <Row style={Style.padding}>
-        <TouchableOpacity>
-          <Image
-            source={require('../assets/image/google.png')}
-            style={[Style.iconButton, {width: 62}]}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Image
-            source={require('../assets/image/facebook.png')}
-            style={Style.iconButton}
-          />
-        </TouchableOpacity>
-      </Row>
+        <Row style={Style.row}>
+          <View style={Style.separator}></View>
+          <Text style={{marginHorizontal: 10}}>Hoặc</Text>
+          <View style={Style.separator}></View>
+        </Row>
+        <Row style={Style.padding}>
+          <TouchableOpacity>
+            <Image
+              source={require('../assets/image/google.png')}
+              style={[Style.iconButton, {width: 62}]}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Image
+              source={require('../assets/image/facebook.png')}
+              style={Style.iconButton}
+            />
+          </TouchableOpacity>
+        </Row>
 
-      <Row>
-        <TextView>Bạn đã có tài khoản : </TextView>
-        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-          <TextView style={{color: Colors.blueColor}}>Đăng nhập ngay</TextView>
-        </TouchableOpacity>
-      </Row>
-    </Container>
+        <Row>
+          <TextView>Bạn đã có tài khoản : </TextView>
+          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <TextView style={{color: Colors.blueColor}}>
+              Đăng nhập ngay
+            </TextView>
+          </TouchableOpacity>
+        </Row>
+      </Container>
+      {loading && <AppLoading />}
+    </>
   );
 };
 

@@ -9,4 +9,5 @@ export default Colors = {
   borderSelectedColor: '#009245',
   blueColor: '#007537',
   error: '#FF0000',
+  black: '#000000',
 };

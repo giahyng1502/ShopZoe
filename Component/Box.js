@@ -1,5 +1,6 @@
-import {StyleSheet, View} from 'react-native';
+import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
 import Colors from '../Style/Colors';
+import Style from '../Style/Style';
 
 /**
  * Row component - hiển thị các phần tử theo hàng ngang
@@ -64,13 +65,6 @@ const styles = StyleSheet.create({
     padding: 15,
     justifyContent: 'center',
     backgroundColor: Colors.backgroundColor,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 2,
   },
   column: {
     flexDirection: 'column',

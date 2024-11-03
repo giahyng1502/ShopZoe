@@ -51,5 +51,11 @@ const Style = StyleSheet.create({
     backgroundColor: '#ccc',
     marginVertical: 10,
   },
+  snackbar: {
+    width: '100%',
+    marginLeft: 13,
+    justifyContent: 'center',
+    backgroundColor: 'black',
+  },
 });
 export default Style;
