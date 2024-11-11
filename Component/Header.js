@@ -5,7 +5,7 @@ import {TextTitle} from './TextView';
 
 const HeaderScreen = ({title, onback, gotoCart}) => {
   return (
-    <Row between={true}>
+    <Row between={true} style={{padding: 15, backgroundColor: 'white'}}>
       <TouchableOpacity onPress={onback}>
         <Image
           style={{width: 12, height: 24, tintColor: 'black'}}

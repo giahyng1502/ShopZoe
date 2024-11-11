@@ -2,6 +2,7 @@ export default Colors = {
   backgroundColor: '#FFFFFF',
   white: '#FFFFFF',
   borderColor: '#8B8B8B',
+  grayColor: '#ececec',
   textHintColor: '#8B8B8B',
   textColor: '#000000',
   facebookColor: '#3B5998',

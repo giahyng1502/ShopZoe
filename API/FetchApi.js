@@ -10,7 +10,7 @@ const FetchApi = async (
 ) => {
   try {
     // const linkUrl = `https://apishopzoe-1.onrender.com/v1/${url}`;
-    const linkUrl = `http://10.0.3.2:3000/v1/${url}`;
+    const linkUrl = `http://10.0.2.2:3000/v1/${url}`;
     if (token) {
       headers.Authorization = token;
     }
