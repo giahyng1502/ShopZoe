@@ -1,17 +1,16 @@
-import {StyleSheet} from 'react-native';
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import HomeScreen from './Screen/HomeScreen';
+import {NavigationContainer} from '@react-navigation/native';
+import IconBottom from './Component/IconBottom';
+import Colors from './Style/Colors';
+import SearchScreen from './Screen/SearchScreen';
 import NotificationScreen from './Screen/NotificationScreen';
 import ProfileScreen from './Screen/ProfileScreen';
-import Favourite from './Screen/SearchScreen';
 import LoginScreen from './Screen/LoginScreen';
-import {NavigationContainer} from '@react-navigation/native';
 import RegisterScreen from './Screen/RegisterScreen';
-import IconBottom from './Component/IconBottom';
-import SearchScreen from './Screen/SearchScreen';
-import Colors from './Style/Colors';
+import ProductDetail from './Screen/ProductDetail';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -76,7 +75,7 @@ const BottomNavigation = () => {
         options={{
           title: '',
           headerShown: false,
-          tabBarIcon: ({size, focused}) => (
+          tabBarIcon: ({focused}) => (
             <IconBottom
               focus={focused}
               name="profile"
@@ -108,11 +107,14 @@ const App = () => {
           component={RegisterScreen}
           options={{headerShown: false}}
         />
+        <Stack.Screen
+          name="DetailScreen"
+          component={ProductDetail}
+          options={{headerShown: false}}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
 
 export default App;
-
-const styles = StyleSheet.create({});

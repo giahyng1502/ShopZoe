@@ -17,7 +17,7 @@ const IconBottom = ({name, color, focus}) => {
         style={[styles.icon, {width: 32, height: 32, tintColor: color}]}
         resizeMode="contain"
       />
-      {focus && <View style={styles.dot} />}{' '}
+      {focus && <View style={styles.dot} />}
       {/* Hiển thị chấm tròn khi tab được chọn */}
     </View>
   );

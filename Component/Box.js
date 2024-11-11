@@ -1,6 +1,5 @@
-import {KeyboardAvoidingView, StyleSheet, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import Colors from '../Style/Colors';
-import Style from '../Style/Style';
 
 /**
  * Row component - hiển thị các phần tử theo hàng ngang
@@ -45,6 +44,7 @@ export const Column = props => {
  * @param {object} props.style - Kiểu dáng tùy chỉnh thêm vào Container
  */
 export const Container = props => {
+  // eslint-disable-next-line react/react-in-jsx-scope
   return <View style={[styles.container, props.style]}>{props.children}</View>;
 };
 
@@ -63,11 +63,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
-    justifyContent: 'center',
     backgroundColor: Colors.backgroundColor,
   },
   column: {
     flexDirection: 'column',
-    alignItems: 'center',
   },
 });
