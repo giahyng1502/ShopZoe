@@ -2,23 +2,37 @@ import React from 'react';
 import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Row} from './Box';
 import {TextTitle} from './TextView';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const HeaderScreen = ({title, onback, gotoCart}) => {
+const HeaderScreen = ({
+  title,
+  onback,
+  gotoCart,
+  avatar,
+  image,
+  cart,
+  padding,
+}) => {
   return (
-    <Row between={true} style={{padding: 15, backgroundColor: 'white'}}>
+    <Row
+      between={true}
+      style={padding ? {} : {padding: 15, backgroundColor: 'white'}}>
       <TouchableOpacity onPress={onback}>
-        <Image
-          style={{width: 12, height: 24, tintColor: 'black'}}
-          source={require('../assets/image/ic_back.png')}
-        />
+        {(avatar &&
+          (image ? (
+            <Image source={{uri: avatar}} style={styles.notification} />
+          ) : (
+            <Ionicons name="person-outline" size={32} color="black" />
+          ))) || <Ionicons name="arrow-back-outline" size={32} color="black" />}
       </TouchableOpacity>
-      <TextTitle>{title}</TextTitle>
-      <View style={styles.cart}>
-        <Image
-          style={{width: 30, height: 30, tintColor: 'black'}}
-          source={require('../assets/image/shopping-cart.png')}
-        />
-      </View>
+      {title && <TextTitle size={24}>{title}</TextTitle>}
+      {!cart ? (
+        <TouchableOpacity style={styles.cart} onPress={gotoCart}>
+          <Ionicons name="cart-outline" size={32} color="black" />
+        </TouchableOpacity>
+      ) : (
+        <View style={{width: 32}} />
+      )}
     </Row>
   );
 };
@@ -38,5 +52,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 8,
     shadowRadius: 9,
     elevation: 8,
+  },
+  notification: {
+    width: 20,
+    height: 20,
   },
 });

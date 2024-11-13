@@ -1,19 +1,12 @@
-import {
-  FlatList,
-  Image,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {FlatList, Image, Pressable, StyleSheet, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {Column, Container, Row, Spacer} from '../Component/Box';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import {Column, Container, Spacer} from '../Component/Box';
 import {TextTitle, TextView} from '../Component/TextView';
 import Colors from '../Style/Colors';
 import SlideBanner from '../Component/SlideBanner';
 import FetchApi from '../API/FetchApi';
 import {Rating} from 'react-native-ratings';
+import Header from '../Component/Header';
 
 const HomeScreen = ({navigation}) => {
   const [image, setImage] = useState('');
@@ -77,18 +70,12 @@ const HomeScreen = ({navigation}) => {
   return (
     <Container style={style.justifyContent}>
       {/*header*/}
-      <Row between={true}>
-        <TouchableOpacity style={style.avatar}>
-          <Ionicons name="notifications-outline" size={32} color="black" />
-        </TouchableOpacity>
-        <TouchableOpacity style={style.avatar}>
-          {image ? (
-            <Image source={{uri: image}} style={style.notification} />
-          ) : (
-            <Ionicons name="person-outline" size={32} color="black" />
-          )}
-        </TouchableOpacity>
-      </Row>
+      <Header
+        avatar={true}
+        image={image}
+        padding={true}
+        gotoCart={() => navigation.navigate('CartScreen')}
+      />
       <Spacer height={15} />
       <Column>
         <TextView>Hello,</TextView>

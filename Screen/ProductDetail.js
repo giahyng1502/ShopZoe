@@ -17,6 +17,7 @@ import {Rating} from 'react-native-ratings';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import BottomSheetDialog from '../Dialogs/BottomSheetDialog';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import FetchApi from '../API/FetchApi';
 
 const ProductDetail = ({navigation, route}) => {
   const {product} = route.params;
@@ -32,9 +33,26 @@ const ProductDetail = ({navigation, route}) => {
     setColorSelected(size);
   }
 
-  function hanlerAddCart() {
+  async function hanlerAddCart() {
     if (!sizeSelected || !colorSelected) {
       return;
+    }
+    const response = await FetchApi(
+      'cart/addToCart',
+      'POST',
+      {
+        productId: product._id,
+        size: sizeSelected,
+        color: colorSelected,
+        quantity: 1,
+      },
+      'fd eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzM0MGY5Y2JhMDVhYWZjMTZiOTVjMDgiLCJwaG9uZU51bWJlciI6Imh1bmdjeUBnbWFpbC5jb20iLCJuYW1lIjoiaHVuZyIsInJvbGUiOmZhbHNlLCJpYXQiOjE3MzE0NjUxOTYsImV4cCI6MTczNDA1NzE5Nn0.fee5mBR2WLkyVqnDsio8lgGTg53a764bWo4uhB-QsAI',
+    );
+    if (response.status === 200) {
+      setSheetVisible(false);
+      alert('Thêm vào gio hàng thành công');
+    } else {
+      alert('Thêm vào gio hàng thất bại');
     }
   }
 

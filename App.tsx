@@ -11,6 +11,7 @@ import ProfileScreen from './Screen/ProfileScreen';
 import LoginScreen from './Screen/LoginScreen';
 import RegisterScreen from './Screen/RegisterScreen';
 import ProductDetail from './Screen/ProductDetail';
+import CartScreen from './Screen/CartScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -91,10 +92,15 @@ const BottomNavigation = () => {
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="BottomNavigation">
+      <Stack.Navigator initialRouteName="Login">
         <Stack.Screen
           name="BottomNavigation"
           component={BottomNavigation}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name={'CartScreen'}
+          component={CartScreen}
           options={{headerShown: false}}
         />
         <Stack.Screen
