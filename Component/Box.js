@@ -1,4 +1,4 @@
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import Colors from '../Style/Colors';
 
 /**
@@ -58,7 +58,37 @@ export const Container = props => {
 export const Spacer = props => {
   return <View style={{height: props.height || 0, width: props.width || 0}} />;
 };
-
+export const CircleComponent = ({children, size, color, style, onClick}) => {
+  return (
+    <TouchableOpacity
+      onPress={onClick}
+      activeOpacity={0.7}
+      style={[
+        {
+          width: size,
+          height: size,
+          elevation: 5,
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: size / 2,
+          backgroundColor: color,
+        },
+        style,
+      ]}>
+      {children}
+    </TouchableOpacity>
+  );
+};
+export const Box = ({children, style, row, onClick}) => {
+  return (
+    <TouchableOpacity
+      onPress={onClick}
+      activeOpacity={0.8}
+      style={[styles.box, style, {flexDirection: row ? 'row' : 'column'}]}>
+      {children}
+    </TouchableOpacity>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -67,5 +97,17 @@ const styles = StyleSheet.create({
   },
   column: {
     flexDirection: 'column',
+  },
+  box: {
+    padding: 15,
+    paddingEnd: 20,
+    backgroundColor: Colors.white,
+    elevation: 8,
+    width: '100%',
+    borderRadius: 10,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
   },
 });

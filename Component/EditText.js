@@ -1,10 +1,8 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet} from 'react-native';
 import React from 'react';
 import Colors from '../Style/Colors';
 import {TextInput} from 'react-native-paper';
 import Style from '../Style/Style';
-import {Column} from './Box';
-import {TextView} from './TextView';
 
 const EditText = props => {
   return (

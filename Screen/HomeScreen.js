@@ -4,33 +4,32 @@ import {Column, Container, Spacer} from '../Component/Box';
 import {TextTitle, TextView} from '../Component/TextView';
 import Colors from '../Style/Colors';
 import SlideBanner from '../Component/SlideBanner';
-import FetchApi from '../API/FetchApi';
-import {Rating} from 'react-native-ratings';
 import Header from '../Component/Header';
+import {useDispatch, useSelector} from 'react-redux';
+import {getAllProducts} from '../redux/reducer/productReducer';
+import {StarRatingDisplay} from 'react-native-star-rating-widget';
+import {getUser} from '../redux/reducer/userReducer';
 
 const HomeScreen = ({navigation}) => {
   const [image, setImage] = useState('');
-  const [listProduct, setListProduct] = useState([]);
-  const Url = 'product/getAll';
+  const dispatch = useDispatch();
+  const {data, isLoading, error} = useSelector(state => state.product);
+  const {user} = useSelector(state => state.userState);
+  const [name, setName] = useState('');
+  const [rating, setRating] = useState(5);
   const banners = [
     'https://via.placeholder.com/350x150',
     'https://via.placeholder.com/350x150',
     'https://via.placeholder.com/350x150',
   ];
-  const getData = async () => {
-    const response = await FetchApi(Url);
-    // console.log(response);
-
-    const data = await response.json();
-    if (response.status === 200) {
-      setListProduct(data);
-    } else {
-      console.log('Error get data', response.status);
-    }
-  };
   useEffect(() => {
-    getData();
-  }, []);
+    dispatch(getAllProducts());
+    dispatch(getUser());
+    if (user) {
+      setImage(user.avatar);
+      setName(user.name);
+    }
+  }, [dispatch]);
   const renderItem = ({item}) => {
     return (
       <Pressable
@@ -52,13 +51,12 @@ const HomeScreen = ({navigation}) => {
             </TextTitle>
             <Spacer height={5} />
             <View style={{width: '100%'}}>
-              <Rating
-                imageSize={20}
-                readonly
-                ratingColor="black" // Màu của sao đã được chọn (sao đầy)
-                ratingBackgroundColor="lightgray" // Màu của sao chưa được chọn (sao xám)
-                startingValue={item.rating}
-                style={{alignItems: 'flex-start'}}
+              <StarRatingDisplay
+                rating={item.rating}
+                starSize={30} // Tùy chỉnh kích thước sao
+                starStyle={{marginHorizontal: -4}} // Màu sắc sao
+                emptyStarColor="gray" // Màu sắc sao không đánh dấu
+                fullStarColor="gold" // Màu sắc sao đánh dấu
               />
             </View>
           </Column>
@@ -79,7 +77,7 @@ const HomeScreen = ({navigation}) => {
       <Spacer height={15} />
       <Column>
         <TextView>Hello,</TextView>
-        <TextTitle color={Colors.blueColor}>Hoang Van Hung</TextTitle>
+        <TextTitle color={Colors.blueColor}>{name}</TextTitle>
       </Column>
       <Spacer height={15} />
       <SlideBanner images={banners} autoplay={true} />
@@ -87,7 +85,7 @@ const HomeScreen = ({navigation}) => {
 
       <TextTitle>Trang Phục</TextTitle>
       <FlatList
-        data={listProduct}
+        data={data}
         renderItem={renderItem}
         keyExtractor={item => item._id}
         numColumns={2}

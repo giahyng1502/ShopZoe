@@ -1,35 +1,34 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Column, Container, Row, Spacer} from '../Component/Box';
-import HeaderScreen from '../Component/Header';
-import SlideBanner from '../Component/SlideBanner';
-import {TextTitle, TextView} from '../Component/TextView';
+import {Modalize} from 'react-native-modalize';
+import {Container, Row, Spacer} from './Box';
+import {TextTitle, TextView} from './TextView';
 import Colors from '../Style/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import BottomSheetDialog from '../Dialogs/BottomSheetDialog';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import FetchApi, {token} from '../API/FetchApi';
-import {useDispatch, useSelector} from 'react-redux';
-import {StarRatingDisplay} from 'react-native-star-rating-widget';
+import {useDispatch} from 'react-redux';
 import {addToCart} from '../redux/reducer/cartReducer';
 
-const ProductDetail = ({navigation, route}) => {
-  const {product} = route.params;
-  const [isSheetVisible, setSheetVisible] = useState(false);
+const BottomSheet = ({isVisible, onClose, children, product}) => {
+  const modalRef = useRef(null);
   const [sizeSelected, setSizeSelected] = useState('');
   const [colorSelected, setColorSelected] = useState('');
   const [quantity, setQuantity] = useState(1);
-
   const dispatch = useDispatch();
-  const {items} = useSelector(state => state.cart);
+
+  function setData() {
+    setSizeSelected(product.size);
+    setColorSelected(product.color);
+    setQuantity(product.quantity);
+  }
+
   function hanlerSizeSelected(size) {
     setSizeSelected(size);
   }
@@ -38,15 +37,15 @@ const ProductDetail = ({navigation, route}) => {
     setColorSelected(size);
   }
 
-  async function hanlerAddCart() {
+  async function hanlerUpdateCart(id) {
     if (!sizeSelected || !colorSelected) {
       return;
     }
     const response = await FetchApi(
-      'cart/addToCart',
-      'POST',
+      'cart/updateCart/' + id,
+      'PUT',
       {
-        productId: product._id,
+        productId: product.item._id,
         size: sizeSelected,
         color: colorSelected,
         quantity: quantity,
@@ -54,11 +53,12 @@ const ProductDetail = ({navigation, route}) => {
       token,
     );
     if (response.status === 200) {
-      setSheetVisible(false);
       const data = await response.json();
       dispatch(addToCart(data));
-      console.log(data);
+      closeBottomSheet();
       alert('Thêm vào gio hàng thành công');
+    } else if (response.status === 409) {
+      alert('Sản phẩm đã đạt giới hạn mua sắm');
     } else {
       alert('Thêm vào gio hàng thất bại');
     }
@@ -71,6 +71,7 @@ const ProductDetail = ({navigation, route}) => {
       alert('Sản phẩm đã đầy');
     }
   }
+
   function minusQuantity() {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -79,86 +80,61 @@ const ProductDetail = ({navigation, route}) => {
     }
   }
 
+  // Mở Bottom Sheet khi có yêu cầu
+  const openBottomSheet = () => {
+    modalRef.current?.open();
+  };
+
+  // Đóng Bottom Sheet và gọi callback onClose nếu có
+  const closeBottomSheet = () => {
+    modalRef.current?.close();
+  };
+
+  // Hiển thị Bottom Sheet nếu isVisible thay đổi
+  useEffect(() => {
+    if (isVisible) {
+      setData();
+      openBottomSheet();
+    } else {
+      closeBottomSheet();
+    }
+  }, [isVisible]); // Chạy lại mỗi khi isVisible thay đổi
+
+  // Gọi onClose khi Bottom Sheet đóng hoàn tất
+  const handleClosed = () => {
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      <View style={styles.container}>
-        <HeaderScreen
-          title={'Chi tiết sản phẩm'}
-          onback={() => {
-            navigation.goBack();
-          }}
-        />
-        <ScrollView
-          contentContainerStyle={{paddingBottom: 100}}
-          keyboardShouldPersistTaps="handled">
-          <Container>
-            <SlideBanner images={product.image} height={300} />
-            <TextTitle>{product.name}</TextTitle>
-            <TextTitle size={22} color={Colors.blueColor}>
-              Giá: {product.price} VNĐ
-            </TextTitle>
-            <Column>
-              <TextTitle size={18}>Đánh giá sản phẩm </TextTitle>
-              <Spacer height={5} />
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <StarRatingDisplay
-                  rating={product.rating}
-                  style={{justifyContent: 'flex-start'}}
-                  starSize={50} // Tùy chỉnh kích thước sao
-                  starStyle={{marginHorizontal: -4}} // Màu sắc sao
-                  emptyStarColor="gray" // Màu sắc sao không đánh dấu
-                  fullStarColor="gold" // Màu sắc sao đánh dấu
-                />
-                <Spacer width={10} />
-                <TextTitle size={18} color={Colors.black}>
-                  ({product.rating} / 5)
-                </TextTitle>
-              </View>
-            </Column>
-            <Spacer height={10} />
-            <TextTitle size={18}>Mô tả sản phẩm</TextTitle>
-            <TextTitle size={16}>Chất liệu</TextTitle>
-            <TextView size={16}>{product.description[0]}</TextView>
-            <TextTitle size={16}>Thiết kế</TextTitle>
-            <TextView size={16}>{product.description[1]}</TextView>
-            <TextTitle size={16}>Kiểu dáng</TextTitle>
-            <TextView size={16}>{product.description[2]}</TextView>
-          </Container>
-        </ScrollView>
-        <View style={styles.cartButtonContainer}>
-          <TouchableOpacity
-            style={styles.cartButton}
-            onPress={event => {
-              event.persist();
-              setSheetVisible(true);
-            }}>
-            <Ionicons name="cart-outline" size={24} color="#fff" />
-            <Spacer width={10} />
-            <Text style={styles.cartButtonText}>Thêm vào giỏ hàng</Text>
-          </TouchableOpacity>
-        </View>
-        <BottomSheetDialog
-          isVisible={isSheetVisible}
-          onClose={() => setSheetVisible(false)} // Đóng Bottom Sheet khi đã đóng
-        >
-          <Container>
+    <Modalize
+      ref={modalRef}
+      snapPoint={400} // Độ cao Bottom Sheet khi mở
+      adjustToContentHeight={true}
+      handlePosition="inside" // Vị trí thanh điều khiển (Handle)
+      onClosed={handleClosed} // Gọi callback khi đóng Bottom Sheet
+    >
+      <View style={styles.contentContainer}>
+        {product && isVisible && (
+          <Container style={{backgroundColor: Colors.white}}>
             <Row>
               <Image
-                source={{uri: product.image[0]}}
+                source={{uri: product.item.image[0]}}
                 style={{width: '50%', height: 150, borderRadius: 16}}
                 resizeMode="cover"
               />
               <View style={{width: '50%', paddingHorizontal: 20}}>
                 <TextTitle size={18} color={Colors.blueColor}>
-                  {product.price} VND
+                  {product.item.price} VND
                 </TextTitle>
               </View>
             </Row>
             <Spacer height={20} />
             <TextTitle size={20}>Màu sắc</TextTitle>
             <Row between style={styles.row}>
-              {product.colors.length &&
-                product.colors.map(colors => (
+              {product.item.colors.length &&
+                product.item.colors.map(colors => (
                   <Pressable
                     onPress={() => hanlerColorSelected(colors)}
                     key={Math.random()}
@@ -178,8 +154,8 @@ const ProductDetail = ({navigation, route}) => {
             </Row>
             <TextTitle size={20}>Size</TextTitle>
             <Row between style={styles.row}>
-              {product.sizes.length &&
-                product.sizes.map(size => (
+              {product.item.sizes.length &&
+                product.item.sizes.map(size => (
                   <Pressable
                     onPress={() => hanlerSizeSelected(size)}
                     key={Math.random()}
@@ -244,22 +220,27 @@ const ProductDetail = ({navigation, route}) => {
               onPress={event => {
                 // event.persist();
                 // setSheetVisible(true);
-                hanlerAddCart();
+                hanlerUpdateCart(product._id);
               }}>
-              <Ionicons name="cart-outline" size={24} color="#fff" />
               <Spacer width={10} />
-              <Text style={styles.cartButtonText}>Thêm vào giỏ hàng</Text>
+              <Text style={styles.cartButtonText}>Xác Nhận</Text>
             </TouchableOpacity>
           </Container>
-        </BottomSheetDialog>
+        )}
       </View>
-    </GestureHandlerRootView>
+    </Modalize>
   );
 };
 
-export default ProductDetail;
+export default BottomSheet;
 
 const styles = StyleSheet.create({
+  contentContainer: {
+    flex: 1,
+    padding: 20,
+    borderRadius: 20,
+    backgroundColor: 'white',
+  },
   container: {
     flex: 1,
   },

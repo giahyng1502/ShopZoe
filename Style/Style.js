@@ -1,5 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {StyleSheet} from 'react-native';
 import Colors from './Colors';
 
 const Style = StyleSheet.create({
@@ -43,7 +42,7 @@ const Style = StyleSheet.create({
     padding: 15,
   },
   between: {
-    justifyContent: 'between',
+    justifyContent: 'space-between',
   },
   separator: {
     flex: 1,

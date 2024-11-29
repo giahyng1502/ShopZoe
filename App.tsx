@@ -12,6 +12,9 @@ import LoginScreen from './Screen/LoginScreen';
 import RegisterScreen from './Screen/RegisterScreen';
 import ProductDetail from './Screen/ProductDetail';
 import CartScreen from './Screen/CartScreen';
+import {Provider} from 'react-redux';
+import store from './redux/state/store';
+import ProfileDetail from './Screen/ProfileDetail';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -91,35 +94,42 @@ const BottomNavigation = () => {
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
-        <Stack.Screen
-          name="BottomNavigation"
-          component={BottomNavigation}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name={'CartScreen'}
-          component={CartScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Login"
-          component={LoginScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Register"
-          component={RegisterScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="DetailScreen"
-          component={ProductDetail}
-          options={{headerShown: false}}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="BottomNavigation">
+          <Stack.Screen
+            name="BottomNavigation"
+            component={BottomNavigation}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name={'CartScreen'}
+            component={CartScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name={'ProfileDetail'}
+            component={ProfileDetail}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{headerShown: false}}
+          />
+          <Stack.Screen
+            name="DetailScreen"
+            component={ProductDetail}
+            options={{headerShown: false}}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 };
 

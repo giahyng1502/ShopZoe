@@ -36,4 +36,30 @@ const FetchApi = async (
     throw error;
   }
 };
+export const uploadImage = async fileUri => {
+  try {
+    const formData = new FormData();
+    formData.append('image', {
+      uri: fileUri,
+      type: 'image/jpeg',
+      name: 'photo.jpg',
+    });
+
+    const response = await fetch('http://10.0.2.2:3000/v1/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      body: formData,
+    });
+    const data = await response.json();
+    return data.url;
+  } catch (error) {
+    console.error('Upload image error:', error.message || error);
+    throw error;
+  }
+};
+
 export default FetchApi;
+export const token =
+  'gf eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzQ4NmI4ODUxYzFjNzVmNjdiYzdhNDMiLCJwaG9uZU51bWJlciI6Imh1bmdjeUBnbWFpbC5jb20iLCJuYW1lIjoiaHVuZyIsInJvbGUiOmZhbHNlLCJpYXQiOjE3MzI3OTkzNzMsImV4cCI6MTczNTM5MTM3M30.uqrvd2CoDvUCIgtEWf2CotvIhku4gvKFrDZLDgzM6PI';

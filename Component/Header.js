@@ -20,7 +20,7 @@ const HeaderScreen = ({
       <TouchableOpacity onPress={onback}>
         {(avatar &&
           (image ? (
-            <Image source={{uri: avatar}} style={styles.notification} />
+            <Image source={{uri: image}} style={styles.notification} />
           ) : (
             <Ionicons name="person-outline" size={32} color="black" />
           ))) || <Ionicons name="arrow-back-outline" size={32} color="black" />}
@@ -54,7 +54,11 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   notification: {
-    width: 20,
-    height: 20,
+    marginLeft: 5,
+    width: 55,
+    elevation: 8,
+    resizeMode: 'cover',
+    height: 55,
+    borderRadius: 100,
   },
 });

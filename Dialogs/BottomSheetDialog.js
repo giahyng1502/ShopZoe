@@ -31,13 +31,6 @@ const BottomSheetDialog = ({isVisible, onClose, children}) => {
     }
   };
 
-  // Gọi onOpened khi Bottom Sheet mở
-  const handleOpened = () => {
-    if (onOpened) {
-      onOpened();
-    }
-  };
-
   return (
     <Modalize
       ref={modalRef}
